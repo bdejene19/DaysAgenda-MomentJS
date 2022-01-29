@@ -82,10 +82,8 @@ const generateLocalStore = (storeName) => {
  */
 const setLocalStorage = (storeName, dataSaved) => {
     if (typeof(dataSaved) === "string") {
-        console.log('my data saved: ', dataSaved);
         localStorage.setItem(storeName, dataSaved);
     } else {
-        console.log('set my local storage');
         localStorage.setItem(storeName, JSON.stringify(dataSaved));
     }
 }
