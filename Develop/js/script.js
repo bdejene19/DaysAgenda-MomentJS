@@ -27,11 +27,11 @@ const setTimeBlockColors = (hourMoment) => {
     // loop through blocks and compare to input block's data attribute => style accordingly 
     $.each(hourBlocks, (index, hour) => {
         let blockTimeVal = parseInt(hour.dataset.time);
-        if (blockTimeVal < currHour) {
-            $(hour).css("background-color", "orangered");
-        } else if (blockTimeVal === currHour) {
+        if (blockTimeVal === currHour) {
             $(hour).css("background-color", "orange");
 
+        } else if (blockTimeVal < currHour) {
+            $(hour).css("background-color", "orangered");
         } else {
             $(hour).css("background-color", "lime");
         }
