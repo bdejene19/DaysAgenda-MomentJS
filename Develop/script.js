@@ -9,7 +9,7 @@
  * check moment response to get index latest times
  * use index to color/validate blocks 
  */
-let plannerStoreName = 'saved-events'
+let plannerStoreName = 'saved-events';
 let hourBlocks = $('#timeblock-insert').children().children('input');
 
 const setTimeBlockColors = (hourMoment) => {
@@ -23,7 +23,6 @@ const setTimeBlockColors = (hourMoment) => {
 
         } else {
             $(hour).css("background-color", "lime");
-
         }
     })
 }
@@ -40,34 +39,44 @@ const setTimeBlockColors = (hourMoment) => {
  * create function to get values from local storage
  */
 
- let savedEventTimes = {};
 
 const generateLocalStore = (storeName) => {
+    let savedEventTimes = {};
     let counter = 9;
+    if (getFromLocalStorage(plannerStoreName) == undefined) {
+
+    }
     while (counter < 24) {
-        savedEventTimes[counter] = '';
+        savedEventTimes[`${counter}`] = '';
         counter++;
     }
-
+    console.log('generated local store')
     setLocalStorage(storeName, savedEventTimes);
+
 }
 const setLocalStorage = (storeName, dataSaved) => {
     if (typeof(dataSaved) === "string") {
+        console.log('my data saved: ', dataSaved);
         localStorage.setItem(storeName, dataSaved);
     } else {
+        console.log('set my local storage');
         localStorage.setItem(storeName, JSON.stringify(dataSaved));
     }
 }
+// generateLocalStore(plannerStoreName);  
+
 const getFromLocalStorage = (storeName) => {
     let storeValue = localStorage.getItem(storeName);
     return storeValue
 }
 // savedEventTimes['9'] = 'this is a test run';
-
+// let savedEvents = getFromLocalStorage(plannerStoreName);
+// console.log(savedEvents);
 const getEventValues = () => {
     let savedEvents = getFromLocalStorage(plannerStoreName);
     savedEvents = JSON.parse(savedEvents);
-    Object.keys(savedEventTimes).map((key, index) => {
+    console.log('this is my saved events: ', savedEvents);
+    Object.keys(savedEvents).map((key, index) => {
         let currBlockHour = hourBlocks[index];
         if (currBlockHour !== undefined) {
             if (currBlockHour.dataset.time === key) {
@@ -90,14 +99,25 @@ const saveEventToLocal = (event) => {
     let inputEl = eventChildren.children('input');
     let newEventSaved = $(inputEl).val();
     let time = inputEl.attr('data-time');
-
+    time = parseInt(time)
     
     let myStore = getFromLocalStorage(plannerStoreName);
     myStore = JSON.parse(myStore);
-    myStore[`${time}`] = newEventSaved;
+    Object.keys(myStore).map(key => {
+        if (key == time) {
+            console.log('entered if statement');
+            myStore[key] = newEventSaved;
+            console.log('my new store: ', myStore);
+            setLocalStorage(plannerStoreName, myStore);
+            // local store is being set here => but for some reason resetting on page refresh
+            console.log('my new localstorage val: \n', getFromLocalStorage(plannerStoreName));
+            console.log('myStore value: ', myStore);
+        }
+    })
+    // console.log('my key ssss: ', JSON.parse(myStore)[9]);
+    myStore[time] = newEventSaved;
 
-    setLocalStorage(plannerStoreName, myStore);
-    console.log(getFromLocalStorage(plannerStoreName));
+    // setLocalStorage(plannerStoreName, myStore);
     // myStore[timeEl] = 'helllo'
 
 
@@ -109,7 +129,17 @@ allRows.on('click', '.save-event', saveEventToLocal)
 
 
 const getCurrentTime = () => {
-    setLocalStorage(plannerStoreName, savedEventTimes);
+    let localStoreEvents = localStorage.getItem(plannerStoreName);
+    console.log('my current local storage: ', localStoreEvents);
+    if (localStoreEvents === 'undefined' || localStoreEvents === undefined || localStoreEvents === null) {
+        generateLocalStore(plannerStoreName);
+        // setLocalStorage(plannerStoreName, savedEventTimes);
+    } else {
+        // console.log(getFromLocalStorage(plannerStoreName));
+        let savedEventTimes = getFromLocalStorage(plannerStoreName);
+        // console.log(savedEventTimes);
+    }
+    
     let hourMoment = moment();
     let currentHour = hourMoment.format('HH');
     currentHour = parseInt(currentHour);
@@ -126,17 +156,10 @@ const getCurrentTime = () => {
             currentHour = hourCheck;
             setTimeBlockColors(currentHour);
         }
-    }, 1000)
+    }, 1000);
 
-    if (getFromLocalStorage(plannerStoreName) !== generateLocalStore(plannerStoreName)) {
-        console.log(getFromLocalStorage(plannerStoreName))
+    getEventValues();
 
-        // console.log(getFromLocalStorage(plannerStoreName))
-    } else {
-        generateLocalStore(plannerStoreName);
-    }
-
-    
 }
 
 
